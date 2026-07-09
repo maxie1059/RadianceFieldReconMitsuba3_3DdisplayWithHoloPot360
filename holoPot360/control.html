@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Hologram Control</title>
+  <style>
+    body { background: #111; color: #eee; font-family: sans-serif;
+           display: flex; flex-direction: column; align-items: center;
+           justify-content: center; height: 100vh; margin: 0; gap: 24px; }
+    h2 { margin: 0; letter-spacing: 0.1em; }
+    .row { display: flex; gap: 16px; align-items: center; }
+    button {
+      padding: 16px 32px; font-size: 1.2rem; border: none; border-radius: 8px;
+      cursor: pointer; background: #333; color: #fff;
+    }
+    button:hover { background: #555; }
+    #startBtn { background: #1a7a1a; font-size: 1.5rem; padding: 20px 48px; }
+    #startBtn:hover { background: #27a827; }
+    #nudgeDisplay { font-size: 1.4rem; min-width: 80px; text-align: center; }
+    #status { color: #888; font-size: 0.9rem; }
+    #resetBtn { background: #7a1a1a; }
+    #resetBtn:hover { background: #a82727; }
+  </style>
+</head>
+<body>
+  <h2>🎡 Hologram Sync Control</h2>
+  <div id="status">Connecting...</div>
+
+  <button id="startBtn">▶ START BOTH PHONES</button>
+
+  <div class="row">
+    <button id="minusBtn">− 1 frame</button>
+    <div id="nudgeDisplay">nudge: 0</div>
+    <button id="plusBtn">+ 1 frame</button>
+  </div>
+  <button id="resetBtn">Reset nudge to 0</button>
+
+  <div style="color:#555; font-size:0.8rem; max-width:360px; text-align:center;">
+    Press START to sync both phones simultaneously.<br>
+    If phone 2 appears offset, use ±1 frame buttons to correct it live.
+  </div>
+
+<script>
+  const ws = new WebSocket('ws://' + location.host);
+  const status      = document.getElementById('status');
+  const nudgeDisplay = document.getElementById('nudgeDisplay');
+
+  ws.onopen  = () => { status.textContent = '● Connected'; status.style.color = '#4f4'; };
+  ws.onclose = () => { status.textContent = '✕ Disconnected'; status.style.color = '#f44'; };
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'nudge') nudgeDisplay.textContent = 'nudge: ' + msg.nudge;
+  };
+
+  document.getElementById('startBtn').onclick = () =>
+    ws.send(JSON.stringify({ type: 'start' }));
+
+  document.getElementById('plusBtn').onclick = () =>
+    ws.send(JSON.stringify({ type: 'nudge', delta: +1 }));
+
+  document.getElementById('minusBtn').onclick = () =>
+    ws.send(JSON.stringify({ type: 'nudge', delta: -1 }));
+
+  document.getElementById('resetBtn').onclick = () =>
+    ws.send(JSON.stringify({ type: 'reset' }));
+</script>
+</body>
+</html>

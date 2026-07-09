@@ -1,0 +1,8 @@
+1. Download node.js and install it
+2. Double check with "node -v" or "npm -v" in cmd
+3. Open cmd in holoPot360.myServer
+4. node server.js
+5. Open http://localhost:3000/control on laptop
+6. Open on two phones http://<laptop_ip>:3000/?mode=hologram32&phone=1
+					  http://<laptop_ip>:3000/?mode=hologram32&phone=2
+7. Click on laptop and adjust frame so that they match
